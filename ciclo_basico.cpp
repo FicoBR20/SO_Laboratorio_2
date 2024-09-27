@@ -2,7 +2,7 @@
 Archivo: ciclo_basico.cpp
 Autor: federico.barbeetti@correounivalle.edu.co>
 Fecha creación: 2024-09-26
-Fecha última modificación: 2024-09-26 
+Fecha última modificación: 2024-09-27 
 Licencia: GNU-GPL
 */
 
@@ -16,21 +16,34 @@ using namespace std;
  * variable que regisrara paso a paso la
  * huella del ciclo basico de instruccion.
  */
-ofstream info_compiler("data_register.txt");
+//ofstream info_compiler("data_register.txt");
 /**
  * variable que mostrara en consola la huella
  * del ciclo basico de instruccion.
  */
-ifstream read_info("data_register.txt");
+//ifstream read_info("data_register.txt");
 /**
  * funcion que escribe cada iteraccion del ciclo basico
  * de instruccion en un archivo de texto.
  */
-void huellera (ofstream info_compiler, string interaccion){
-    int indice=1;
-    info_compiler<<to_string(indice)<<" "<<interaccion<<" \n";
+void huellera (string iteracion){
+    ofstream info_compiler("data_regiter.txt");
+    int indice=1;//numerador lineas
+    info_compiler<<to_string(indice)<<" "<<iteracion<<" \n";
     info_compiler.close();
     indice++;
+}
+
+void shower (){
+    string renglon="";//out aux
+    ifstream read_info("data_register.txt");
+    while (getline(read_info, renglon))
+    {
+        cout<<renglon;
+    }
+    read_info.close();
+    
+
 }
 
 
@@ -98,7 +111,7 @@ int engine(vector<set_registros>tareas){
 
 void fn_inicio(set_registros reg){
 
-    tarea_actual[0].id_registro
+    tarea_actual[0].id_registro;
 }
 
 
