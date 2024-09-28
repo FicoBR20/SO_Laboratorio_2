@@ -1,0 +1,9 @@
+  /**
+     * string cpu[7] = {"Unidad_de_control [0]",
+                "PC [1]", 
+                "Acumulador [2]", 
+                "ICR [3]", 
+                "ALU [4]",
+                "MAR [5]", 
+                "MDR [6]"};
+     */
