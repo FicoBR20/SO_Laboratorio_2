@@ -105,14 +105,17 @@ ram_register conf_registros (int sec, string ty, int pmem, string value){
 }
 
 /**
- * funcion que realiza la secuencia de instrucciones para ejecutar
- * un load.
+ * funcion que realiza un LOAD;
+ * string [] -> formato para presentar cada registro durante el proceso.
+ * ram_register -> objeto struct de un registro
+ * vector -> contenedor de registros almacenadas por procesar
  */
+string load_execute (string some_cpu[16], ram_register my_reg, vector<ram_register> memory_tp){
 
-string load_execute (string some_cpu[16], ram_register my_reg){
-
-    string aux="";
-    stringstream ss_1, ss2;
+    string aux_1, aux_2="";
+    stringstream ss_1, ss_2;
+    int my_acumulador = 0; // representa el acumulador
+    int my_alu = 0; // representa el alu
 
     if (my_reg.b_tipo=="LDR") //(108, "LDR", 110, "NULL") -> "LOAD"
     {
@@ -127,37 +130,48 @@ string load_execute (string some_cpu[16], ram_register my_reg){
         
         //next instruction.
         //bloque 1
-        aux = step_cpu(some_cpu) + "\n..actualiza PC para tomar nueva tarea.\n";//
-        ss_1<<aux<<endl;
+        aux_1 = step_cpu(some_cpu) + "\n..actualiza PC para tomar nueva tarea.\n";//
+        ss_1<<aux_1<<endl;
         cout<<ss_1.str()<<endl;
 
-        some_cpu[3]= to_string((stoi(some_cpu[3]))+1);
+        some_cpu[3]= to_string((stoi(some_cpu[3]))+1);//aumenta PC
         
         
-        some_cpu[1]=my_reg.b_tipo , " " , to_string(my_reg.c_p_memory);
+        some_cpu[1]= "LOAD " + to_string(my_reg.c_p_memory);
+        
+        some_cpu[11]= to_string(my_reg.c_p_memory);//str
 
+        // va a la direccion 110 y toma el atoi(string value)
 
-        
-        // some_cpu[10]=my_reg.d_get_value;//str
-    
-        // some_cpu[4]=my_reg.d_get_value;//str
-        
-        
+        for( ram_register d : memory_tp){
+
+            if (d.c_p_memory==my_reg.c_p_memory)
+            {
+                some_cpu[13]= stoi(d.d_get_value);//debe ser 40
+                my_acumulador= stoi(d.d_get_value);
+                some_cpu[5]=d.d_get_value;
+
+                cout<<"value es "<<d.d_get_value<<endl;
+                break;
+            }
+            
+
+        }
         /**
          * termina la rutina "LDR" (LOAD, se actualiza el MAR
          *  y se busca la nueva instruccion
          */
-        some_cpu[10]=some_cpu[2];
-        aux = step_cpu(some_cpu);//prueba chiquita
-    
 
-        cout<<ss_1.str();//prueba de salida.
-
-
+        some_cpu[11]=some_cpu[3];
+        
+        //bloque 2
+        aux_2 = step_cpu(some_cpu) + "\n..actualiza PC para tomar nueva tarea.\n";//
+        ss_2<<aux_2<<endl;
+        cout<<ss_2.str()<<endl;
 
     }
 
-    return aux;
+    return aux_1;
 
 
 }
@@ -178,7 +192,7 @@ void engine(vector<ram_register>my_reg){
 
     stringstream sst;
 
-    int hd_memory[1000];//memoria
+    int hd_memory[200];//memoria
     memset(hd_memory, 0, sizeof(hd_memory));//clean array to ceros
 
     int pc_cont=1;//representa el contador de programas
@@ -369,7 +383,7 @@ int main()
     cout<<ls.str()<<endl;//muestra en consola info inicial.
     writer_data(ls.str());//genera "data_registes.txt"
     
-    load_execute(my_cpu, ldr1);//possible engine
+    load_execute(my_cpu, ldr1, mistareas);//possible engine
 
     
   
