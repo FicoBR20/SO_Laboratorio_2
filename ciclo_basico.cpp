@@ -26,23 +26,19 @@ struct ram_register{
 };
 
 
-/**
- * vector contenedor de los registros a procesar.
- * usado en la funcion -> conf_registros
- */
-vector<ram_register>tarea_actual;
+
 
 /**
  * string que presenta el paso paso de las entidades que intervienen 
  * en el ciclo basico de instrucciones.
  */
-string cpu[14] = {"Unidad de Control ","[  ]",//unidad de control
-                " PC ","[  ]", //PC
-                " Acumulador ","[  ]",//acum
-                " ICR ","[  ]", //icr
-                " ALU ","[  ]",//alu
-                " MAR ","[  ]",//mar
-                " MDR ","[  ]\n"};//mdr
+string cpu[16] = {"Unidad de Control [ ","-----",//unidad de control
+                " ] PC [ ", "-----", //PC
+                " ] Acumulador [ ","-----",//acum
+                " ] ICR [ ","-----", //icr
+                " ] ALU [ ","-----",//alu
+                " ] MAR [ ","-----",//mar
+                " ] MDR [ ","-----"," ] \n"};//mdr
 
 /**
  * funcion que entrega un string con los 4 atributos
@@ -61,18 +57,12 @@ string info_registros_iniciales(ram_register reg_nvo){
  */
 string step_cpu(string basico[]){
 
-    string info_paso="";
-
-    stringstream ssf;
-    for (int i = 0; i < basico->size(); i++)
-    {
-        ssf<<basico[i]<<" \n";
-    }
-    
-    return info_paso=ssf.str(); 
+    string result ="";
+    for(int i=0;i<16;i++)
+    result +=basico[i];
+   
+    return result; 
 }
-
-
 
 /**
  * funcion que escribe cada iteraccion del ciclo basico
@@ -89,7 +79,7 @@ void writer_data (string iteracion){
  */
 void reader_data_show (){
     string renglon="";//out aux
-    ifstream read_info("copiecita.txt");//object
+    ifstream read_info("data_register.txt");//object
     while (getline(read_info, renglon))
     {
         cout<<renglon;
@@ -119,20 +109,50 @@ ram_register conf_registros (int sec, string ty, int pmem, string value){
  * un load.
  */
 
-string load_execute (int secuence, string my_cpu[], ram_register my_reg){
+string load_execute (string some_cpu[16], ram_register my_reg){
 
-    string aux=" ";
+    string aux="";
+    stringstream ss_1, ss2;
 
-    if (my_reg.b_tipo=="load")
+    if (my_reg.b_tipo=="LDR") //(108, "LDR", 110, "NULL") -> "LOAD"
     {
-        my_cpu[2]=my_reg.c_p_memory;
-        my_cpu[10]=my_reg.c_p_memory;
-        my_cpu[12]=my_reg.b_tipo , " " , to_string(my_reg.c_p_memory);
-        my_cpu[6]=my_reg.b_tipo , " " , to_string(my_reg.c_p_memory);
+        ss_1<<info_registros_iniciales(my_reg)+" \n";
+        some_cpu[3]=to_string(my_reg.a_secuence);//OK
+        
+        some_cpu[11]=to_string(my_reg.a_secuence);//OK
 
-        my_cpu[2]+=1;
-        my_cpu[0]=my_reg.b_tipo , " " , to_string(my_reg.c_p_memory);
-        my_cpu[10]=my_reg.c_p_memory;
+        some_cpu[13]="LOAD " + to_string(my_reg.c_p_memory);
+
+        some_cpu[7]="LOAD " + to_string(my_reg.c_p_memory);
+        
+        //next instruction.
+        //bloque 1
+        aux = step_cpu(some_cpu) + "\n..actualiza PC para tomar nueva tarea.\n";//
+        ss_1<<aux<<endl;
+        cout<<ss_1.str()<<endl;
+
+        some_cpu[3]= to_string((stoi(some_cpu[3]))+1);
+        
+        
+        some_cpu[1]=my_reg.b_tipo , " " , to_string(my_reg.c_p_memory);
+
+
+        
+        // some_cpu[10]=my_reg.d_get_value;//str
+    
+        // some_cpu[4]=my_reg.d_get_value;//str
+        
+        
+        /**
+         * termina la rutina "LDR" (LOAD, se actualiza el MAR
+         *  y se busca la nueva instruccion
+         */
+        some_cpu[10]=some_cpu[2];
+        aux = step_cpu(some_cpu);//prueba chiquita
+    
+
+        cout<<ss_1.str();//prueba de salida.
+
 
 
     }
@@ -192,41 +212,29 @@ void engine(vector<ram_register>my_reg){
 
             cpu[3]="00"+to_string(pc_cont);//inicializa PC
 
-            cout<<"paso # "<<paso+1<<" "<<step_cpu(cpu)<<endl;
-
-            /**
-             * 
-            stringstream ss1;
-            for( string x : cpu){
-                ss1<<x;
-                }
-            cout<<ss1.str()<<endl;
-             */
-
-
-
-
-
-
 
             
             if (my_reg.at(i).b_tipo=="LDR")//("LDR", 110, "NULL")
             {
-        /*mar*/ cpu[10]="00"+to_string(pc_cont);
-        /*mdr*/ cpu[12]=my_reg.at(i).b_tipo + " " + to_string(my_reg.at(i).c_p_memory);
-        /*icr*/ cpu[6]=my_reg.at(i).b_tipo + " " + to_string(my_reg.at(i).c_p_memory);
+                step_cpu(cpu);
+
+
+    
+        // /*mar*/ cpu[10]="00"+to_string(pc_cont);
+        // /*mdr*/ cpu[12]=my_reg.at(i).b_tipo + " " + to_string(my_reg.at(i).c_p_memory);
+        // /*icr*/ cpu[6]=my_reg.at(i).b_tipo + " " + to_string(my_reg.at(i).c_p_memory);
                
             
 
 
-                cpu[3]="00"+to_string(pc_cont+1);//inicializa PC
-        /*uc*/  cpu[0]=my_reg.at(i).b_tipo + " " + to_string(my_reg.at(i).c_p_memory);
+        //         cpu[3]="00"+to_string(pc_cont+1);//inicializa PC
+        // /*uc*/  cpu[0]=my_reg.at(i).b_tipo + " " + to_string(my_reg.at(i).c_p_memory);
 
 
 
-        /*mar*/ cpu[10]="00"+to_string(my_reg.at(i).c_p_memory);
-        /*mdr*/ cpu[12]=my_reg.at(i).d_get_value;
-        /*acum*/cpu[4]=my_reg.at(i).d_get_value;
+        // /*mar*/ cpu[10]="00"+to_string(my_reg.at(i).c_p_memory);
+        // /*mdr*/ cpu[12]=my_reg.at(i).d_get_value;
+        // /*acum*/cpu[4]=my_reg.at(i).d_get_value;
 
     
 
@@ -234,11 +242,13 @@ void engine(vector<ram_register>my_reg){
         
 
 
-        /*mar*/ cpu[5]="00"+to_string(pc_cont);//no se le aumenta nada, ya fue aumentada en 1.
+        // /*mar*/ cpu[5]="00"+to_string(pc_cont);//no se le aumenta nada, ya fue aumentada en 1.
 
-                tmp_v = my_reg.at(i).c_p_memory;
+        //         tmp_v = my_reg.at(i).c_p_memory;
 
-                my_acumulador = my_acumulador + hd_memory[tmp_v];
+        //         my_acumulador = my_acumulador + hd_memory[tmp_v];
+
+        
 
             }
             else if (my_reg.at(i).b_tipo=="ADD")//"ADD", 105, "NULL"
@@ -276,7 +286,7 @@ void engine(vector<ram_register>my_reg){
             }
             else if (my_reg.at(i).b_tipo=="END")
             {
-                cout<<"El valor de alu es: "<<my_alu<<endl;
+                cout<<"\nEl valor de alu es: "<<my_alu<<endl;
             }
             else{
 
@@ -305,6 +315,14 @@ void engine(vector<ram_register>my_reg){
 int main()
 {
     vector<ram_register>mistareas;//arreglo con el CONJUNTO de registros para procesar en CPU
+
+    string my_cpu[16] = {"Unidad de Control [ ","-----",//unidad de control
+                " ] PC [ ", "-----", //PC
+                " ] Acumulador [ ","-----",//acum
+                " ] ICR [ ","-----", //icr
+                " ] ALU [ ","-----",//alu
+                " ] MAR [ ","-----",//mar
+                " ] MDR [ ","-----"," ] \n"};//mdr
 
     int muestra;//probador temporal
 
@@ -351,13 +369,15 @@ int main()
     cout<<ls.str()<<endl;//muestra en consola info inicial.
     writer_data(ls.str());//genera "data_registes.txt"
     
-
+    load_execute(my_cpu, ldr1);//possible engine
 
     
   
 
     engine(mistareas);
+
+    reader_data_show();
     
-    cout<<" Gracias a Dios, estamos en camino\n";
+    cout<<"\nGracias a Dios, estamos en camino\n\n";
     return 0;
 }
