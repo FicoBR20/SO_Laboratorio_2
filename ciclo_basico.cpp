@@ -119,10 +119,11 @@ string load_execute (string some_cpu[16], ram_register my_reg, vector<ram_regist
 
     if (my_reg.b_tipo=="LDR") //(108, "LDR", 110, "NULL") -> "LOAD"
     {
-        ss_1<<info_registros_iniciales(my_reg)+" \n";
-        some_cpu[3]=to_string(my_reg.a_secuence);//OK
+        ss_1<<info_registros_iniciales(my_reg)+" \n" + "ciclo inicial proceso LOAD.\n\n";//inicia streamstring 
+
+        some_cpu[3]=to_string(my_reg.a_secuence);
         
-        some_cpu[11]=to_string(my_reg.a_secuence);//OK
+        some_cpu[11]=to_string(my_reg.a_secuence);
 
         some_cpu[13]="LOAD " + to_string(my_reg.c_p_memory);
 
@@ -130,7 +131,8 @@ string load_execute (string some_cpu[16], ram_register my_reg, vector<ram_regist
         
         //next instruction.
         //bloque 1
-        aux_1 = step_cpu(some_cpu) + "\n..actualiza PC para tomar nueva tarea.\n";//
+        aux_1 = step_cpu(some_cpu);
+        
         ss_1<<aux_1<<endl;
         cout<<ss_1.str()<<endl;
 
@@ -147,11 +149,9 @@ string load_execute (string some_cpu[16], ram_register my_reg, vector<ram_regist
 
             if (d.c_p_memory==my_reg.c_p_memory)
             {
-                some_cpu[13]= stoi(d.d_get_value);//debe ser 40
+                some_cpu[13]= d.d_get_value;//debe ser 40
                 my_acumulador= stoi(d.d_get_value);
-                some_cpu[5]=d.d_get_value;
-
-                cout<<"value es "<<d.d_get_value<<endl;
+                some_cpu[5]= d.d_get_value;
                 break;
             }
             
@@ -165,7 +165,8 @@ string load_execute (string some_cpu[16], ram_register my_reg, vector<ram_regist
         some_cpu[11]=some_cpu[3];
         
         //bloque 2
-        aux_2 = step_cpu(some_cpu) + "\n..actualiza PC para tomar nueva tarea.\n";//
+        ss_2<<"ciclo final proceso LOAD\n\n";
+        aux_2 = step_cpu(some_cpu);
         ss_2<<aux_2<<endl;
         cout<<ss_2.str()<<endl;
 
